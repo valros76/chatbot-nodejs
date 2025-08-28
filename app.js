@@ -58,6 +58,11 @@ app.get("/api/profile/:userId", (req, res) => {
   });
 });
 
+// La dernière route à indiquer au serveur, c'est la gestion des routes non trouvées, soit l'erreur 404.
+app.use((req, res) => {
+  res.status(404).sendFile(path.join(__dirname, "public", "404.html"));
+});
+
 // On va écouter le port défini (par défaut, le port 3000), pour démarrer le serveur et avoir un point de contact.
 // Le serveur sera accessible sur http://localhost:PORT, soit http://localhost:3000 par défaut.
 app.listen(PORT, () => {
