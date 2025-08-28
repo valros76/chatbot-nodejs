@@ -35,23 +35,7 @@ app.get("/api/profile/:userId", (req, res) => {
     });
   }
 
-  const users = [
-    {
-      id: 1,
-      username: "Bob",
-      email: "bob@test.fr"
-    },
-    {
-      id: 2,
-      username: "Alice",
-      email: "alice@test.fr"
-    },
-    {
-      id: 3,
-      username: "John",
-      email: "john@test.fr"
-    }
-  ];
+  const users = require(path.join(__dirname, "public", "datas", "users.json"));
 
   res.json({
     user: users[userId - 1]
