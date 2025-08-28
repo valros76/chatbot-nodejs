@@ -17,10 +17,44 @@ app.get("/", (req, res) => {
 
 // On ajoute une route API pour notre chatbot
 app.get("/api/chat", (req, res) => {
-  const userMessage = req.query.message;
+  const userMessage = req.query.message ?? "Aucunes données fournies";
   // Logique simple : "Bonjour" peut importe la question posée.
   res.json({
     text: `Bonjour ! Vous avez dit : ${userMessage}.`
+  });
+});
+
+// On ajoute une route API dynamique, pour consulter un profil utilisateur
+app.get("/api/profile/:userId", (req, res) => {
+  const userId = Number(req.params.userId) ?? undefined;
+
+
+  if (!userId) {
+    res.json({
+      status: 404
+    });
+  }
+
+  const users = [
+    {
+      id: 1,
+      username: "Bob",
+      email: "bob@test.fr"
+    },
+    {
+      id: 2,
+      username: "Alice",
+      email: "alice@test.fr"
+    },
+    {
+      id: 3,
+      username: "John",
+      email: "john@test.fr"
+    }
+  ];
+
+  res.json({
+    user: users[userId - 1]
   });
 });
 
