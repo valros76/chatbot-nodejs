@@ -13,7 +13,7 @@ app.use(express.static(path.join(__dirname, "public")));
 // On permet la lecture des données JSON dans les requêtes HTTP avec Express
 app.use(express.json());
 
-mongoose.connect("mongodb+srv://webdevoopro_db_user:NextF0rmation42@cluster0.voyjctt.mongodb.net/")
+mongoose.connect("mongodb+srv://<NOMUTILISATEUR>:<MOTDEPASSE>@cluster0.voyjctt.mongodb.net/")
 .then(
   () => console.log("Connexion à la base MongoDB a réussi.")
 )
