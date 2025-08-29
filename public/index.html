@@ -42,10 +42,81 @@
     <div class="messages" id="messages"></div>
 
     <input type="text" id="inputMessage" class="input-box" placeholder="Tapez votre message ici..."/>
+
+    <select id="chatOptions">
+      <option selected disabled>Vous avez une question ?</option>
+      <option value="horaires">
+        Quels sont vos horaires ?
+      </option>
+      <option value="retours">
+        Quelles sont vos conditions de retour ?
+      </option>
+      <option value="contact">
+        Comment vous contacter ?
+      </option>
+    </select>
   </div>
 
   <script>
-    // Le JS du front-end sera à ajouter ici plus tard.
+    const messagesDiv = document.querySelector("#messages");
+    const inputMessage = document.querySelector("#inputMessage");
+    const chatOptions = document.querySelector("#chatOptions");
+
+    // Fonction qui aura pour rôle d'afficher un message
+    function appendMessage(sender, message){
+      const messageElement = document.createElement("div");
+      messageElement.textContent = `${sender.toUpperCase()} : ${message}`;
+      messagesDiv.appendChild(messageElement);
+      messagesDiv.scrollTop = messagesDiv.height;
+    };
+
+    // Gérer l'envoi d'un message par l'utilisateur
+    inputMessage.addEventListener("keypress", async (e) => {
+      if(e.key === "Enter" && inputMessage.value.trim() !== ""){
+        const userMessage = inputMessage.value.trim();
+        appendMessage("Moi", userMessage);
+        inputMessage.value = "";
+
+        // Envoi du message au serveur via l'API
+        try{
+
+          const response = await fetch("/api/chat", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ message: userMessage })
+          });
+          const data = await response.json();
+          appendMessage("Chatbot", data.text);
+
+        }catch(err){
+          console.error("Une erreur s'est produite lors de l'envoi du message", err);
+          appendMessage("Chatbot", "Oups, une erreur s'est produite !");
+        }
+      }
+    });
+
+    chatOptions.addEventListener("input", async (e) => {
+      const selectedValue = e.currentTarget.selectedOptions[0].value;
+      const selectedLabel = e.currentTarget.selectedOptions[0].label;
+      try{
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ message: selectedValue})
+        });
+        const data = await response.json();
+        appendMessage("Moi", selectedLabel);
+        appendMessage("Chatbot", data.text);
+
+      }catch(err){
+        appendMessage("Chatbot", "Une erreur s'est produite !");
+      }
+    });
+
   </script>
 </body>
 </html>

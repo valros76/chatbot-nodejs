@@ -13,13 +13,13 @@ app.use(express.static(path.join(__dirname, "public")));
 // On permet la lecture des données JSON dans les requêtes HTTP avec Express
 app.use(express.json());
 
-mongoose.connect("mongodb+srv://<NOMUTILISATEUR>:<MOTDEPASSE>@cluster0.voyjctt.mongodb.net/")
-.then(
-  () => console.log("Connexion à la base MongoDB a réussi.")
-)
-.catch(
-  err => console.error("Une erreur s'est produite lors de la connexion à la base de données", err)
-);
+mongoose.connect("<COLLER_CONNEXION_STRING_DE_COMPASS>")
+  .then(
+    () => console.log("Connexion à la base MongoDB a réussi.")
+  )
+  .catch(
+    err => console.error("Une erreur s'est produite lors de la connexion à la base de données", err)
+  );
 
 // On définit une route pour la page d'accueil
 // Lorsqu'un utilisateur va accéder à la racine ("/"), on va afficher "Hello World !"
@@ -29,13 +29,30 @@ app.get("/", (req, res) => {
 });
 
 // On ajoute une route API pour notre chatbot
-app.get("/api/chat", async (req, res) => {
+app.post("/api/chat", async (req, res) => {
   // On force le passage du message en minuscules pour faciliter la recherche.
-  const userMessage = req.body.message.toLowerCase() ?? "Aucunes données fournies";
-  // Logique simple : "Bonjour" peut importe la question posée.
-  res.json({
-    text: `Bonjour ! Vous avez dit : ${userMessage}.`
-  });
+  const userMessage = req.body.message.toLowerCase();
+
+  let botResponse = {
+    text: "Désolé, je n'ai pas compris votre question."
+  };
+
+  try {
+
+    // On va chercher une réponse qui correspond à la question de l'utilisateur
+    const matchingResponse = await Response.findOne({ question: userMessage });
+
+    if (matchingResponse) {
+      botResponse.text = matchingResponse.answer;
+    }
+
+    res.json(botResponse);
+
+  } catch (err) {
+    res.status(500).json({
+      error: err.message
+    });
+  }
 });
 
 // On ajoute une route API dynamique, pour consulter un profil utilisateur
@@ -58,7 +75,7 @@ app.get("/api/profile/:userId", (req, res) => {
 
 // On a besoin d'une route d'initialisation des données, qui ne sera a apeller qu'une seule fois.
 app.get("/api/init", async (req, res) => {
-  try{
+  try {
 
     // On supprime les questions et réponses existantes pour recommencer à utiliser le chatbot
     await Response.deleteMany({});
@@ -83,7 +100,7 @@ app.get("/api/init", async (req, res) => {
       message: "Les données ont été initialisée dans la base de données."
     });
 
-  }catch(err){
+  } catch (err) {
     res.status(500).json({
       error: err.message
     });
